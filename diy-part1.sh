@@ -23,8 +23,8 @@ echo 'src-git helloworld https://github.com/fw876/helloworld.git' >>feeds.conf.d
 
 
 ## 解除系统限制
-ulimit -u 10000
-ulimit -n 4096
+ulimit -u unlimited
+ulimit -n unlimited
 ulimit -d unlimited
 ulimit -m unlimited
 ulimit -s unlimited
