@@ -145,9 +145,9 @@ jobs:
         WHOAMI: deng
         OPENWRT_ARMVIRT: openwrt-armvirt/*.tar.gz
         PACKAGE_SOC: e52c
-       # KERNEL_AUTO_LATEST: false
-       # KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
-        KERNEL_VERSION_NAME: 6.6.y
+        KERNEL_AUTO_LATEST: true
+        KERNEL_REPO_URL: https://github.com/ophub/kernel
+        KERNEL_VERSION_NAME: 6.1.y
 
     - name: 发布固件
       uses: ncipollo/release-action@v1
