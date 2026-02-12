@@ -59,7 +59,7 @@ jobs:
         sudo -E apt clean
         sudo -E timedatectl set-timezone "$TZ"
         sudo -E mkdir -p /workdir
-        sudo -E chown $USER:$GROUPS /workdir
+        sudo -E chown $USER:$USER /workdir
 
     - name: 克隆源码
       working-directory: /workdir
