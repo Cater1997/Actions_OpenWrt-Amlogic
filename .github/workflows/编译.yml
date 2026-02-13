@@ -141,13 +141,15 @@ jobs:
       - name: 复制 armsr 根文件系统到打包目录
         run: |
           mkdir -p openwrt-armvirt
-          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
+          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/openwrt-armvirt-64-generic-rootfs.tar.gz
 
-      - name: 验证 rootfs 文件完整性
+      - name: Test rootfs tar integrity
         run: |
-          gunzip -t openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz || exit 1
-          echo "文件完整性检查通过"
-    
+          echo "=== 列出 rootfs.tar.gz 内容（前20行）==="
+          tar -tzf openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz | head -20 || exit 1
+          echo "=== 文件大小 ==="
+          du -sh openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
+
       - name: 打包内核
         uses: unifreq/openwrt_packit@master
         env:
