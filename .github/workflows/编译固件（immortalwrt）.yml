@@ -97,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: config-before-build
-          path: |
+          path:
             - immortalwrt/feeds.conf.default
             - immortalwrt/.config
 
@@ -109,7 +109,12 @@ jobs:
       - name: 复制 armsr 根文件系统到打包目录
         run: |
           mkdir -p openwrt-armvirt
-          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/
+          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
+
+      - name: 验证 rootfs 文件完整性
+        run: |
+          gunzip -t openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz || exit 1
+          echo "文件完整性检查通过"
     
       - name: 打包内核
         uses: unifreq/openwrt_packit@master
