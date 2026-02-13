@@ -48,9 +48,7 @@ jobs:
           sudo -E apt -y autoremove --purge
           sudo -E apt clean
           docker rmi $(docker images -q) 2>/dev/null || true
-          sudo -E timedatectl set-timezone "$TZ"
-          sudo -E mkdir -p /workdir
-          sudo -E chown $USER:$USER /workdir
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
 
       - name: 克隆当前仓库 (Clone current repo)
         uses: actions/checkout@v4
