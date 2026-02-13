@@ -1,4 +1,4 @@
-name: 🚀 编译 (Build)
+name: 🚀 编译 (Buil)
 
 on:
   workflow_dispatch:
