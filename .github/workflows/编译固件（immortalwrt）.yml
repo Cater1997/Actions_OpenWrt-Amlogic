@@ -1,8 +1,13 @@
 name: 编译固件（immortalwrt）
 
 on:
-  repository_dispatch:
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: "使用SSH连接到编译环境（限时15分钟）"
+        type: boolean
+        required: false
+        default: false
 
  # schedule:
  #   - cron: 0 16 * * 4
@@ -87,6 +92,10 @@ jobs:
         cd openwrt
         chmod +x $GITHUB_WORKSPACE/diy-config.sh
         $GITHUB_WORKSPACE/diy-config.sh
+
+    - name: 使用SSH连接到编译环境，限时15分钟，可在连接后输入命令touch /tmp/keepalive保活
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
+      uses: csexton/debugger-action@master
 
     - name: 下载软件包
       id: package
