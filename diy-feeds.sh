@@ -1,4 +1,4 @@
-# 添加第三方feed源
+# 添加第三方 feed 源
 echo 'src-git helloworld https://github.com/fw876/helloworld.git' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
