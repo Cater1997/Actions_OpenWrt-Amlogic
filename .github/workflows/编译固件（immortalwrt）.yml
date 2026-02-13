@@ -89,17 +89,9 @@ jobs:
         working-directory: immortalwrt
         run: |
           make defconfig
-          make defconfig && echo "defconfig 成功" || echo "defconfig 失败"
           make download -j8
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
-
-      - name: 调试：检查 .config 文件是否存在
-        run: |
-          echo "=== 列出 immortalwrt 根目录下的 .config ==="
-          ls -la immortalwrt/.config || echo "❌ .config 不存在"
-          echo "=== 列出 immortalwrt 根目录所有文件（前10行）==="
-          ls -la immortalwrt/ | head -20
 
       - name: 编译前上传配置 (Upload config before build)
         uses: actions/upload-artifact@v4
@@ -114,17 +106,10 @@ jobs:
         working-directory: immortalwrt
         run: make -j$(nproc) V=s
 
-      - name: 调试：列出 armsr 编译产物
-        run: |
-          echo "=== 检查 immortalwrt/bin/targets/armsr/armv8/ 目录内容 ==="
-          ls -la immortalwrt/bin/targets/armsr/armv8/ || echo "目录不存在"
-          echo "=== 搜索所有 rootfs.tar.gz 文件 ==="
-          find immortalwrt/bin/targets -name "*rootfs.tar.gz" -ls || echo "没有找到任何 rootfs.tar.gz"
-
       - name: 复制 armsr 根文件系统到打包目录
         run: |
           mkdir -p openwrt-armvirt
-          cp immortalwrt/bin/targets/armsr/armv8/openwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/
+          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/
     
       - name: 打包内核
         uses: unifreq/openwrt_packit@master
