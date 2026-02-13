@@ -12,7 +12,7 @@ env:
   #REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config-imm
-  DIY_SH: diy-part2-imm.sh
+  DIY_SH: diy.sh
   TZ: Asia/Shanghai
 
 jobs:
