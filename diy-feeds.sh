@@ -1,8 +1,8 @@
-# 添加第三方 feed 源
+# 添加第三方feed源
 echo 'src-git helloworld https://github.com/fw876/helloworld.git' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
-# 拉取额外软件包（git clone 到 package/）
+# 拉取额外软件包（git clone到package/）
 git clone https://github.com/CrazyPegasus/luci-app-accesscontrol-plus.git package/luci-app-accesscontrol-plus
 git clone https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus-lite
 git clone https://github.com/stevenjoezhang/luci-app-adguardhome.git package/luci-app-adguardhome
