@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: "使用SSH连接到编译环境（限时15分钟）"
+        description: "使用 SSH 连接到编译环境（限时15分钟）"
         type: boolean
         required: false
         default: false
@@ -67,19 +67,13 @@ jobs:
         git clone $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: 编译工具链缓存
-      uses: klever1988/cachewrtbuild@main
-      with:
-        ccache: 'false'
-        prefix: ${{ github.workspace }}/openwrt
-
-    - name: 加载自定义feeds
+    - name: 加载自定义 feeds
       run: |
         cd openwrt
         chmod +x $GITHUB_WORKSPACE/diy-feeds.sh
         $GITHUB_WORKSPACE/diy-feeds.sh
         
-    - name: 更新feeds
+    - name: 更新 feeds
       run: cd openwrt && ./scripts/feeds update -a
 
     - name: 安装feeds
@@ -93,7 +87,7 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/diy-config.sh
         $GITHUB_WORKSPACE/diy-config.sh
 
-    - name: 使用SSH连接到编译环境，限时15分钟，可在连接后输入命令touch /tmp/keepalive保活
+    - name: 使用 SSH 连接到编译环境，限时15分钟，可在连接后输入命令touch /tmp/keepalive保活
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
       uses: csexton/debugger-action@master
 
@@ -131,14 +125,9 @@ jobs:
         KERNEL_AUTO_LATEST: true
         KERNEL_REPO_URL: https://github.com/ophub/kernel
         KERNEL_VERSION_NAME: 6.1.y
-
-    - name: 发布固件
-      uses: ncipollo/release-action@v1
-      with:
-        tag: openwrt_N1_immortalwrt_${{ env.PACKAGED_OUTPUTDATE }}
-        artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
-        allowUpdates: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          使用https://github.com/immortalwrt/immortalwrt源码编译
           
+    - name: 上传编译结果到 Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ImmortalWrt-build-result
+        path: ImmortalWrt/bin/targets
