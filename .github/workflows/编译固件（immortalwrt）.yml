@@ -1,130 +1,121 @@
-name: 编译固件（immortalwrt）
+name: 🚀 编译 (Build)
 
 on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: "使用 SSH 连接到编译环境（限时15分钟）"
+        description: "使用 ssh 连接到编译环境 (Connect to the build environment using ssh)"
         type: boolean
-        required: false
         default: false
+      multithreading:
+        description: "开启多线程编译 (Enable multithreading build)"
+        type: boolean
+        default: true
         
-env:
-  REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-24.10
-  CONFIG_FILE: .config-imm
-  TZ: Asia/Shanghai
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    name: 🚀 编译 (Build)
     steps:
-    - name: Checkout
-      uses: actions/checkout@main
+      - name: Checkout
+        uses: actions/checkout@main
+      
+      - name: 检查服务器配置
+        run: |
+          echo "警告⚠"
+          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo "云编译建议取消勾选Node.js及其相关插件！"
+          echo "已知CPU型号（降序）：8370C,8272CL,8171M,E5系列"
+          echo "--------------------------CPU信息--------------------------"
+          echo "CPU物理数量:$(cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l)"
+          echo -e "CPU核心及版本信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+          echo "--------------------------内存信息--------------------------"
+          echo "已安装内存详细信息："
+          sudo lshw -short -C memory | grep GiB
+          echo -e "\n"
+          echo "--------------------------硬盘信息--------------------------"
+          echo -e  "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l) \n"
+          echo "硬盘详情："
+          df -Th
 
-    - name: 检查服务器配置
-      run: |
-        echo "警告⚠"
-        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-        echo "云编译建议取消勾选Node.js及其相关插件！"
-        echo "已知CPU型号（降序）：8370C,8272CL,8171M,E5系列"
-        echo "--------------------------CPU信息--------------------------"
-        echo "CPU物理数量:$(cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l)"
-        echo -e "CPU核心及版本信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
-        echo "--------------------------内存信息--------------------------"
-        echo "已安装内存详细信息："
-        sudo lshw -short -C memory | grep GiB
-        echo -e "\n"
-        echo "--------------------------硬盘信息--------------------------"
-        echo -e  "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l) \n"
-        echo "硬盘详情："
-        df -Th
+      - name: 下载编译所需的依赖 (Install the software packages required for compilation)
+        run: |
+          sudo rm -rf /etc/mysql /etc/php /opt/ghc /usr/share/dotnet /usr/local/lib/android
+          sudo -E apt update
+          sudo apt full-upgrade -y
+          sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gcc-multilib g++-multilib gettext git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz msmtp ninja-build p7zip p7zip-full patch pkgconf python3 python3-pyelftools python3-setuptools qemu-utils rsync squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip wget xmlto xxd zlib1g-dev zstd
+          sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
+          sudo -E apt -y autoremove --purge
+          sudo -E apt clean
+          docker rmi $(docker images -q) 2>/dev/null || true
+          sudo -E timedatectl set-timezone "$TZ"
+          sudo -E mkdir -p /workdir
+          sudo -E chown $USER:$USER /workdir
 
-    - name: 初始化编译环境
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo rm -rf /etc/mysql /etc/php /opt/ghc /usr/share/dotnet /usr/local/lib/android
-        sudo -E apt update
-        sudo apt full-upgrade -y
-        sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gcc-multilib g++-multilib gettext git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz msmtp ninja-build p7zip p7zip-full patch pkgconf python3 python3-pyelftools python3-setuptools qemu-utils rsync squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip wget xmlto xxd zlib1g-dev zstd
-        sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
-        sudo -E apt -y autoremove --purge
-        sudo -E apt clean
-        docker rmi $(docker images -q) 2>/dev/null || true
-        sudo -E timedatectl set-timezone "$TZ"
-        sudo -E mkdir -p /workdir
-        sudo -E chown $USER:$USER /workdir
+      - name: 克隆当前仓库 (Clone current repo)
+        uses: actions/checkout@v4
 
-    - name: 克隆源码
-      working-directory: /workdir
-      run: |
-        df -hT $PWD
-        git clone $REPO_URL openwrt
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+      - name: 克隆 immortalwrt 仓库 (Clone immortalwrt repo)
+        uses: actions/checkout@v4
+        with:
+          repository: immortalwrt/immortalwrt
+          ref: openwrt-24.10
+          path: immortalwrt
 
-    - name: 加载自定义 feeds
-      run: |
-        cd openwrt
-        chmod +x $GITHUB_WORKSPACE/diy-feeds.sh
-        $GITHUB_WORKSPACE/diy-feeds.sh
-        
-    - name: 更新 feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      - name: 复制当前仓库的配置文件到 immortalwrt 仓库  (Copy current repo config to immortalwrt repo)
+        run: cp -f .config diy-feeds.sh diy-config.sh immortalwrt/
 
-    - name: 安装feeds
-      run: cd openwrt && ./scripts/feeds install -a
+      - name: 运行 diy-feeds.sh (Run diy-feeds.sh)
+        working-directory: immortalwrt
+        run: |
+          chmod +x diy-feeds.sh
+          ./diy-feeds.sh
 
-    - name: 加载自定义配置
-      run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE openwrt/.config
-        cd openwrt
-        chmod +x $GITHUB_WORKSPACE/diy-config.sh
-        $GITHUB_WORKSPACE/diy-config.sh
+      - name: 更新并下载 feeds (Update and download feeds)
+        working-directory: immortalwrt
+        run: ./scripts/feeds update -a && ./scripts/feeds install -a
 
-    - name: 使用 SSH 连接到编译环境，限时15分钟，可在连接后输入命令touch /tmp/keepalive保活
-      if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
-      uses: csexton/debugger-action@master
+      - name: 运行 diy-config.sh (Run diy-config.sh)
+        working-directory: immortalwrt
+        run: |
+          chmod +x diy-config.sh
+          ./diy-config.sh
 
-    - name: 下载软件包
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
+      - name: 使用 ssh 连接到编译环境，限时15分钟，可在连接后输入命令 `touch /tmp/keepalive` 保活 (Connect to the build environment using ssh)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
+        uses: csexton/debugger-action@master
 
-    - name: 编译固件
-      id: compile
-      run: |
-        cd openwrt
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
-        echo "status=success" >> $GITHUB_OUTPUT
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+      - name: 下载软件包
+        id: package
+        run: |
+          cd openwrt
+          make defconfig
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
 
-    - name: 复制 armsr 根文件系统到打包目录
-      run: |
-        mkdir -p openwrt-armvirt
-        cp openwrt/bin/targets/armsr/armv8/openwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/
+      - name: 多线程编译 immortalwrt (Build immortalwrt multithreading)
+        if: ${{inputs.multithreading == true}}
+        working-directory: immortalwrt
+        run: make -j$(nproc) V=s
+
+      - name: 复制 armsr 根文件系统到打包目录
+        run: |
+          mkdir -p openwrt-armvirt
+          cp openwrt/bin/targets/armsr/armv8/openwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/
     
-    - name: 打包内核
-      uses: unifreq/openwrt_packit@master
-      env:
-        WHOAMI: deng
-        OPENWRT_ARMVIRT: openwrt-armvirt/*.tar.gz
-        PACKAGE_SOC: e52c
-        KERNEL_AUTO_LATEST: true
-        KERNEL_REPO_URL: https://github.com/ophub/kernel
-        KERNEL_VERSION_NAME: 6.1.y
+      - name: 打包内核
+        uses: unifreq/openwrt_packit@master
+        env:
+          WHOAMI: deng
+          OPENWRT_ARMVIRT: openwrt-armvirt/*.tar.gz
+          PACKAGE_SOC: e52c
+          KERNEL_AUTO_LATEST: true
+          KERNEL_REPO_URL: https://github.com/ophub/kernel
+          KERNEL_VERSION_NAME: 6.1.y
           
-    - name: 上传编译结果到 Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ImmortalWrt-build-result
-        path: ImmortalWrt/bin/targets
+      - name: 上传编译结果到 Artifact (Upload build result to Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-build-result
+          path: immortalwrt/bin/targets
