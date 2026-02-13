@@ -85,10 +85,9 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
         uses: csexton/debugger-action@master
 
-      - name: 下载软件包
-        id: package
+      - name: 下载软件包 (Download packages)
+        working-directory: immortalwrt
         run: |
-          cd openwrt
           make defconfig
           make download -j8
           find dl -size -1024c -exec ls -l {} \;
