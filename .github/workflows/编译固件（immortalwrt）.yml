@@ -8,10 +8,7 @@ on:
         type: boolean
         required: false
         default: false
-
- # schedule:
- #   - cron: 0 16 * * 4
-
+        
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
