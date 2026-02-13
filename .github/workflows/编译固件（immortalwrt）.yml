@@ -39,6 +39,8 @@ jobs:
           df -Th
 
       - name: 下载编译所需的依赖 (Install the software packages required for compilation)
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           sudo rm -rf /etc/mysql /etc/php /opt/ghc /usr/share/dotnet /usr/local/lib/android
           sudo -E apt update
