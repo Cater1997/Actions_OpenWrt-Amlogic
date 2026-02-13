@@ -130,8 +130,8 @@ jobs:
         with:
           name: config-before-build
           path: |
-            immortalwrt/feeds.conf.default
             immortalwrt/.config
+            immortalwrt/feeds.conf.default
 
       - name: 多线程编译 immortalwrt (Build immortalwrt multithreading)
         if: ${{inputs.multithreading == true}}
