@@ -45,7 +45,7 @@ jobs:
       run: |
         sudo rm -rf /etc/mysql /etc/php /opt/ghc /usr/share/dotnet /usr/local/lib/android
         sudo -E apt update -y
-        sudo -E apt full-upgrade -y
+        sudo -E apt -y full-upgrade
         sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
         bzip2 ccache clang cmake cpio curl device-tree-compiler flex gawk gcc-multilib g++-multilib gettext \
         genisoimage git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev \
@@ -106,13 +106,6 @@ jobs:
     - name: 编译固件
       id: compile
       run: |
-        ulimit -u unlimited
-        ulimit -n unlimited
-        ulimit -d unlimited
-        ulimit -m unlimited
-        ulimit -s unlimited
-        ulimit -t unlimited
-        ulimit -v unlimited
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 V=s
