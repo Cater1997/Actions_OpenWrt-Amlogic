@@ -143,18 +143,6 @@ jobs:
         run: |
           mkdir -p openwrt-armvirt
           cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
-
-      - name: 深入检查 rootfs 内容
-        run: |
-          mkdir -p test_rootfs
-          tar -xzf openwrt-armvirt/openwrt-armvirt-64-generic-rootfs.tar.gz -C test_rootfs
-          ls -la test_rootfs/
-          ls -la test_rootfs/bin/
-          ls -la test_rootfs/etc/
-          # 检查关键文件是否存在
-          [ -f test_rootfs/sbin/init ] && echo "init 存在" || echo "init 缺失"
-          [ -f test_rootfs/etc/openwrt_release ] && cat test_rootfs/etc/openwrt_release
-          rm -rf test_rootfs
           
       - name: 打包内核
         uses: unifreq/openwrt_packit@master
