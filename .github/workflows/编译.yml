@@ -144,7 +144,6 @@ jobs:
         env:
           OPENWRT_ARMVIRT: immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz
           PACKAGE_SOC: e52c
-          PLATFORM: armsr
           KERNEL_AUTO_LATEST: true
           KERNEL_REPO_URL: ophub/kernel
           KERNEL_VERSION_NAME: 6.1.y
