@@ -138,17 +138,11 @@ jobs:
         if: ${{inputs.multithreading == true}}
         working-directory: immortalwrt
         run: make -j$(nproc) V=s
-
-      - name: 复制 armsr 根文件系统到打包目录
-        run: |
-          mkdir -p openwrt-armvirt
-          cp immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
           
       - name: 打包内核
         uses: unifreq/openwrt_packit@master
         env:
-          WHOAMI: admin
-          OPENWRT_ARMVIRT: openwrt-armvirt/openwrt-armsr-armv8-generic-rootfs.tar.gz
+          OPENWRT_ARMVIRT: immortalwrt/bin/targets/armsr/armv8/immortalwrt-armsr-armv8-generic-rootfs.tar.gz
           PACKAGE_SOC: e52c
           PLATFORM: armsr
           KERNEL_AUTO_LATEST: true
